@@ -4,7 +4,7 @@
 
 #### [Official website](https://usdq.platinum.fund/) | [Telegram](https://t.me/Platinumq) | [Facebook](https://www.facebook.com/FundPlatinum) | [Medium](https://medium.com/platinum-fund)
 
-Q DAO Locker  by Platinum Engineering for USDQ, KRWQ, CNYQ, JPYQ stable coins
+Q DAO Locker  by Platinum Engineering for QDAO and USDQ, KRWQ, CNYQ, JPYQ stable coins
 
 
 ## Building the source
