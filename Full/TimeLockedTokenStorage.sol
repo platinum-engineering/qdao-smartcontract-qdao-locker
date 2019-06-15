@@ -183,12 +183,12 @@ contract SafeStorage is WhitelistMigratable, ArrayTools {
 
     /**
     * @dev Create slot for holder
-    * Usage of this method only only owner
+    * Usage of this method only owner
     * @param _holder address The address which you want to lock tokens
     * @param _tokens uint256[]  the amount of tokens to be locked
     * @param _periods uint256[] the amount of periods to be locked
     */
-    function createLockSlot(address _holder, uint256[] _tokens, uint256[] _periods) public onlyOwner {
+    function createLockSlot(address _holder, uint256[] _tokens, uint256[] _periods) public onlyGovernanceContracts {
 
         require(_holder != address(0), "LockStorage cannot be created for this address");
         require (_tokens.length == _periods.length && _tokens.length > 0);
@@ -286,10 +286,10 @@ contract ReleaseLockToken is SafeStorage {
 
     /**
     * @dev Withdrawn lost tokens
-    * Usage of this method only only owner
+    * Usage of this method only owner
     * @param _lockSlotId uint256 unique id lockSlot
     */
-    function withdrawLostToken(uint256 _lockSlotId) public onlyOwner {
+    function withdrawLostToken(uint256 _lockSlotId) public onlyGovernanceContracts {
 
         require(now > lostTime.add(
             lockTokenStorage[getAddressToId(_lockSlotId)][_lockSlotId].periods[lockTokenStorage[getAddressToId(_lockSlotId)][_lockSlotId].periods.length-1]),
