@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "../QDAO/IQDAO.sol";
-import "openzeppelin-solidity/contracts/ownership/HasNoEther.sol";
+import "../Access/WhitelistMigratable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "../Library/ArrayTools.sol";
 
@@ -12,7 +12,7 @@ import "../Library/ArrayTools.sol";
  * https://github.com/platinum-engineering
  * https://github.com/OpenZeppelin/openzeppelin-solidity
  */
-contract SafeStorage is HasNoEther, ArrayTools {
+contract SafeStorage is WhitelistMigratable, ArrayTools {
     using SafeMath for uint256;
 
     event LockSlotCreated(address indexed holder, uint256 id, uint256 amount);
@@ -42,12 +42,12 @@ contract SafeStorage is HasNoEther, ArrayTools {
 
     /**
     * @dev Create slot for holder
-    * Usage of this method only only owner
+    * Usage of this method only owner
     * @param _holder address The address which you want to lock tokens
     * @param _tokens uint256[]  the amount of tokens to be locked
     * @param _periods uint256[] the amount of periods to be locked
     */
-    function createLockSlot(address _holder, uint256[] _tokens, uint256[] _periods) public onlyOwner {
+    function createLockSlot(address _holder, uint256[] _tokens, uint256[] _periods) public onlyGovernanceContracts {
 
         require(_holder != address(0), "LockStorage cannot be created for this address");
         require (_tokens.length == _periods.length && _tokens.length > 0);

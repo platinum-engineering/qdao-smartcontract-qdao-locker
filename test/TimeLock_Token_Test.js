@@ -99,6 +99,9 @@ contract("TimeLockStorage", accounts => {
         await daoToken.addAddressToGovernanceContract(lockStorage.address, {from: firstAccount});
         await daoToken.addAddressToGovernanceContract(lockStorage.address, {from: thirdOwner});
         await daoToken.addAddressToGovernanceContract(lockStorage.address, {from: fourthOwner});
+
+        await lockStorage.addAddressToGovernanceContract(firstAccount, {from: firstAccount});
+
         snapshotId = (await snapshot()).result;
     });
 
@@ -255,6 +258,8 @@ contract("TimeLockStorage", accounts => {
     });
 
     it("#6 should be wihdraw from smart lockStorage from schedule", async () => {
+        await lockStorage.addAddressToGovernanceContract(firstOwner, {from: firstAccount});
+
         // ********************  lock
         await lockStorage.createLockSlot(secondAccount,
                                         [30*TOKEN, 5*TOKEN, 5*TOKEN, 5*TOKEN, 5*TOKEN, 5*TOKEN, 5*TOKEN],
@@ -478,18 +483,19 @@ contract("TimeLockStorage", accounts => {
         // ******************** after 3 years + 4 months + 1 weeks  + 3 day + 2 hours + 10 min
         await increaseTime(years(1));
 
-        await lockStorage.withdrawLostToken(3, {from: firstAccount});
-        await lockStorage.withdrawLostToken(5, {from: firstAccount});
+        await lockStorage.withdrawLostToken(3, {from: firstOwner});
+        await lockStorage.withdrawLostToken(5, {from: firstOwner});
 
         assert.equal(web3.toBigNumber(await lockStorage.getAvailableTokens(3)).toString(), 0);
         assert.equal(web3.toBigNumber(await lockStorage.getAvailableTokens(5)).toString(), 0);
     });
 
     it("#7 withdraw lost tokens", async () => {
+        await lockStorage.addAddressToGovernanceContract(firstOwner, {from: firstAccount});
         await lockStorage.createLockSlot(fifthOwner, [20*TOKEN], [3600], {from: firstAccount});
 
         try { // tokens are not lost
-            await lockStorage.withdrawLostToken(0, {from: firstAccount});
+            await lockStorage.withdrawLostToken(0, {from: firstOwner});
             assert.fail();
         } catch (err) {
             assert.ok(/revert/.test(err.message));
@@ -498,7 +504,7 @@ contract("TimeLockStorage", accounts => {
         await increaseTime(months(2));
 
         try { // tokens are not lost
-            await lockStorage.withdrawLostToken(0, {from: firstAccount});
+            await lockStorage.withdrawLostToken(0, {from: firstOwner});
             assert.fail();
         } catch (err) {
             assert.ok(/revert/.test(err.message));
@@ -509,7 +515,7 @@ contract("TimeLockStorage", accounts => {
 
         assert.equal(web3.toBigNumber(await daoToken.balanceOf.call(lockStorage.address)).toString(), 20*TOKEN);
 
-        try { // not ownable contract
+        try { // not governance address contract
             await lockStorage.withdrawLostToken(0, {from: secondOwner});
             assert.fail();
         } catch (err) {
@@ -517,8 +523,7 @@ contract("TimeLockStorage", accounts => {
         }
 
         await increaseTime(months(2));
-
-        await lockStorage.withdrawLostToken(0, {from: firstAccount});
+        await lockStorage.withdrawLostToken(0, {from: firstOwner});
         assert.equal(web3.toBigNumber(await lockStorage.getAvailableTokens(0)).toString(), 0);
     });
 });

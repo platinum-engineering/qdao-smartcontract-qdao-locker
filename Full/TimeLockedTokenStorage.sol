@@ -122,34 +122,38 @@ contract Ownable {
     }
 }
 
-contract HasNoEther is Ownable {
+contract WhitelistMigratable is Ownable {
 
-    /**
-    * @dev Constructor that rejects incoming Ether
-    * The `payable` flag is added so we can access `msg.value` without compiler warning. If we
-    * leave out payable, then Solidity will allow inheriting contracts to implement a payable
-    * constructor. By doing it this way we prevent a payable constructor from working. Alternatively
-    * we could use assembly to access msg.value.
-    */
-    constructor() public payable {
-        require(msg.value == 0);
+    mapping(address => bool) public governanceContracts;
+
+    event GovernanceContractAdded(address addr);
+    event GovernanceContractRemoved(address addr);
+
+    modifier onlyGovernanceContracts() {
+        require(governanceContracts[msg.sender]);
+        _;
     }
 
-    /**
-     * @dev Disallows direct send by setting a default function without the `payable` flag.
-     */
-    function() external {
+
+    function addAddressToGovernanceContract(address addr) onlyOwner public returns(bool success) {
+        if (!governanceContracts[addr]) {
+            governanceContracts[addr] = true;
+            emit GovernanceContractAdded(addr);
+            success = true;
+        }
     }
 
-    /**
-     * @dev Transfer all Ether held by the contract to the owner.
-     */
-    function reclaimEther() external onlyOwner {
-        owner.transfer(address(this).balance);
+
+    function removeAddressFromGovernanceContract(address addr) onlyOwner public returns(bool success) {
+        if (governanceContracts[addr]) {
+            governanceContracts[addr] = false;
+            emit GovernanceContractRemoved(addr);
+            success = true;
+        }
     }
 }
 
-contract SafeStorage is HasNoEther, ArrayTools {
+contract SafeStorage is WhitelistMigratable, ArrayTools {
     using SafeMath for uint256;
 
     event LockSlotCreated(address indexed holder, uint256 id, uint256 amount);

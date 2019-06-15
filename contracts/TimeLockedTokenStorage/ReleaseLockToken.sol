@@ -38,10 +38,10 @@ contract ReleaseLockToken is SafeStorage {
 
     /**
     * @dev Withdrawn lost tokens
-    * Usage of this method only only owner
+    * Usage of this method only owner
     * @param _lockSlotId uint256 unique id lockSlot
     */
-    function withdrawLostToken(uint256 _lockSlotId) public onlyOwner {
+    function withdrawLostToken(uint256 _lockSlotId) public onlyGovernanceContracts {
 
         require(now > lostTime.add(
             lockTokenStorage[getAddressToId(_lockSlotId)][_lockSlotId].periods[lockTokenStorage[getAddressToId(_lockSlotId)][_lockSlotId].periods.length-1]),
